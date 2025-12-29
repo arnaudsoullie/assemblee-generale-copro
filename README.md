@@ -1,0 +1,1 @@
+# assemblee-generale-copro
