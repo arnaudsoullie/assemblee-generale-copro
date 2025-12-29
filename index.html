@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="theme-color" content="#007AFF">
+    <title>Assemblée Générale - Copropriété</title>
+    <link rel="manifest" href="manifest.json">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- Navigation principale -->
+    <nav class="main-nav">
+        <div class="nav-brand">AG Copropriété</div>
+        <button class="nav-btn" id="btnDashboard" data-view="dashboard">Tableau de bord</button>
+        <button class="nav-btn" id="btnCopro" data-view="copro">Copropriété</button>
+        <button class="nav-btn" id="btnAssemblee" data-view="assemblee">Assemblées</button>
+    </nav>
+
+    <!-- Vue Dashboard -->
+    <div id="view-dashboard" class="view active">
+        <div class="container">
+            <h1>Tableau de bord</h1>
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-value" id="statAssemblees">0</div>
+                    <div class="stat-label">Assemblées</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="statLots">0</div>
+                    <div class="stat-label">Lots</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="statCoproprietaires">0</div>
+                    <div class="stat-label">Copropriétaires</div>
+                </div>
+            </div>
+            <div class="section">
+                <h2>Assemblées récentes</h2>
+                <div id="assembleesList" class="list-container"></div>
+                <button class="btn btn-primary" id="btnNewAssemblee">Nouvelle assemblée</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Vue Copropriété -->
+    <div id="view-copro" class="view">
+        <div class="container">
+            <h1>Configuration de la copropriété</h1>
+            
+            <div class="section">
+                <h2>Informations générales</h2>
+                <div class="form-group">
+                    <label>Nom de la copropriété</label>
+                    <input type="text" id="coproName" placeholder="Ex: Résidence Les Jardins">
+                </div>
+                <div class="form-group">
+                    <label>Adresse</label>
+                    <input type="text" id="coproAddress" placeholder="Adresse complète">
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Copropriétaires et lots</h2>
+                <button class="btn btn-primary" id="btnAddLot">Ajouter un lot</button>
+                <div id="lotsList" class="list-container"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Vue Assemblée -->
+    <div id="view-assemblee" class="view">
+        <div class="container">
+            <div class="header-actions">
+                <h1 id="assembleeTitle">Nouvelle assemblée</h1>
+                <button class="btn btn-secondary" id="btnBackToList">Retour</button>
+            </div>
+
+            <!-- Sélection d'assemblée -->
+            <div id="assembleeSelector" class="section">
+                <h2>Sélectionner une assemblée</h2>
+                <div id="assembleesListSelector" class="list-container"></div>
+            </div>
+
+            <!-- Vue détail assemblée -->
+            <div id="assembleeDetail" class="assemblee-detail" style="display: none;">
+                <!-- Informations assemblée -->
+                <div class="section">
+                    <div class="form-group">
+                        <label>Date de l'assemblée</label>
+                        <input type="date" id="assembleeDate">
+                    </div>
+                    <div class="form-group">
+                        <label>Type</label>
+                        <select id="assembleeType">
+                            <option value="AGO">Assemblée Générale Ordinaire</option>
+                            <option value="AGE">Assemblée Générale Extraordinaire</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Quorum -->
+                <div class="section quorum-section">
+                    <h2>Quorum</h2>
+                    <div class="quorum-display">
+                        <div class="quorum-value" id="quorumValue">0%</div>
+                        <div class="quorum-label">des voix présentes</div>
+                        <div class="quorum-status" id="quorumStatus"></div>
+                    </div>
+                    <div class="quorum-details">
+                        <div>Présents: <span id="quorumPresents">0</span> voix</div>
+                        <div>Total: <span id="quorumTotal">0</span> voix</div>
+                    </div>
+                </div>
+
+                <!-- Présences -->
+                <div class="section">
+                    <h2>Présences</h2>
+                    <button class="btn btn-primary" id="btnMarkPresence">Marquer une présence</button>
+                    <div id="presencesList" class="list-container"></div>
+                </div>
+
+                <!-- Procurations -->
+                <div class="section">
+                    <h2>Procurations</h2>
+                    <button class="btn btn-primary" id="btnAddProcuration">Ajouter une procuration</button>
+                    <div id="procurationsList" class="list-container"></div>
+                </div>
+
+                <!-- Résolutions -->
+                <div class="section">
+                    <h2>Résolutions</h2>
+                    <button class="btn btn-primary" id="btnAddResolution">Ajouter une résolution</button>
+                    <div id="resolutionsList" class="list-container"></div>
+                </div>
+
+                <!-- Actions -->
+                <div class="section">
+                    <button class="btn btn-success" id="btnGenerateReport">Générer le rapport PDF</button>
+                    <button class="btn btn-secondary" id="btnExportData">Exporter les données</button>
+                    <button class="btn btn-secondary" id="btnShareEmail">Partager par email</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modales -->
+    
+    <!-- Modale Lot -->
+    <div id="modalLot" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modalLotTitle">Ajouter un lot</h2>
+                <button class="modal-close" data-modal="modalLot">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label>Numéro de lot</label>
+                    <input type="text" id="lotNumber" placeholder="Ex: 12">
+                </div>
+                <div class="form-group">
+                    <label>Copropriétaire</label>
+                    <input type="text" id="lotOwner" placeholder="Nom du copropriétaire">
+                </div>
+                <div class="form-group">
+                    <label>Tantièmes</label>
+                    <input type="number" id="lotTantiemes" placeholder="100" min="0" step="1">
+                </div>
+                <div class="form-group">
+                    <label>Type de lot</label>
+                    <select id="lotType">
+                        <option value="appartement">Appartement</option>
+                        <option value="local">Local commercial</option>
+                        <option value="cave">Cave</option>
+                        <option value="parking">Parking</option>
+                        <option value="autre">Autre</option>
+                    </select>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" data-modal="modalLot">Annuler</button>
+                <button class="btn btn-primary" id="btnSaveLot">Enregistrer</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modale Présence -->
+    <div id="modalPresence" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Marquer une présence</h2>
+                <button class="modal-close" data-modal="modalPresence">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label>Sélectionner un lot</label>
+                    <select id="presenceLot" size="10" class="select-large"></select>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" data-modal="modalPresence">Annuler</button>
+                <button class="btn btn-primary" id="btnSavePresence">Enregistrer</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modale Procuration -->
+    <div id="modalProcuration" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Ajouter une procuration</h2>
+                <button class="modal-close" data-modal="modalProcuration">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label>Lot mandant (qui donne la procuration)</label>
+                    <select id="procurationMandant" size="8" class="select-large"></select>
+                </div>
+                <div class="form-group">
+                    <label>Lot mandataire (qui reçoit la procuration)</label>
+                    <select id="procurationMandataire" size="8" class="select-large"></select>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" data-modal="modalProcuration">Annuler</button>
+                <button class="btn btn-primary" id="btnSaveProcuration">Enregistrer</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modale Résolution -->
+    <div id="modalResolution" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modalResolutionTitle">Ajouter une résolution</h2>
+                <button class="modal-close" data-modal="modalResolution">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label>Numéro</label>
+                    <input type="text" id="resolutionNumber" placeholder="Ex: 1">
+                </div>
+                <div class="form-group">
+                    <label>Libellé</label>
+                    <textarea id="resolutionLibelle" rows="4" placeholder="Description de la résolution"></textarea>
+                </div>
+                <div class="form-group">
+                    <label>Type de majorité requise</label>
+                    <select id="resolutionMajorite">
+                        <option value="simple">Majorité simple (50% + 1)</option>
+                        <option value="absolue">Majorité absolue (50% + 1 des voix)</option>
+                        <option value="2tiers">Majorité des 2/3</option>
+                        <option value="unanimite">Unanimité</option>
+                    </select>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" data-modal="modalResolution">Annuler</button>
+                <button class="btn btn-primary" id="btnSaveResolution">Enregistrer</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modale Vote -->
+    <div id="modalVote" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modalVoteTitle">Enregistrer les votes</h2>
+                <button class="modal-close" data-modal="modalVote">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label>Résolution</label>
+                    <div id="voteResolutionInfo" class="info-box"></div>
+                </div>
+                <div class="form-group">
+                    <label>Lots présents (avec voix)</label>
+                    <div id="voteLotsList" class="vote-lots-list"></div>
+                </div>
+                <div class="form-group">
+                    <label>Résultat du vote</label>
+                    <div class="vote-results">
+                        <div class="vote-result-item">
+                            <span>Pour:</span>
+                            <span id="votePour">0</span> voix (<span id="votePourPercent">0%</span>)
+                        </div>
+                        <div class="vote-result-item">
+                            <span>Contre:</span>
+                            <span id="voteContre">0</span> voix (<span id="voteContrePercent">0%</span>)
+                        </div>
+                        <div class="vote-result-item">
+                            <span>Abstention:</span>
+                            <span id="voteAbstention">0</span> voix (<span id="voteAbstentionPercent">0%</span>)
+                        </div>
+                        <div class="vote-result-item vote-result-total">
+                            <span>Total exprimé:</span>
+                            <span id="voteTotal">0</span> voix
+                        </div>
+                    </div>
+                    <div id="voteStatus" class="vote-status"></div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" data-modal="modalVote">Annuler</button>
+                <button class="btn btn-primary" id="btnSaveVote">Enregistrer</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="db.js"></script>
+    <script src="app.js"></script>
+    
+    <script>
+        // Enregistrement du Service Worker
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('service-worker.js')
+                    .then(reg => console.log('Service Worker enregistré'))
+                    .catch(err => console.log('Erreur Service Worker:', err));
+            });
+        }
+    </script>
+</body>
+</html>
+
