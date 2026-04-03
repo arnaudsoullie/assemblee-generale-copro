@@ -2,7 +2,7 @@
   "name": "Assemblée Générale - Copropriété",
   "short_name": "AG Copro",
   "description": "Application de gestion d'assemblées générales de copropriété pour iPad",
-  "start_url": "/",
+  "start_url": "/assemblee-generale-copro",
   "display": "standalone",
   "background_color": "#F2F2F7",
   "theme_color": "#007AFF",
